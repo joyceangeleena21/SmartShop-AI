@@ -1,0 +1,14 @@
+{
+  "total_products": 38,
+  "categories": {
+    "Laptop": 19,
+    "Smartphone": 7,
+    "Headphones": 7,
+    "Tablet": 3,
+    "Smartwatch": 2
+  },
+  "price_min": 1799,
+  "price_max": 154990,
+  "price_median": 42999,
+  "average_rating": 4.47
+}
