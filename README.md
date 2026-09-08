@@ -1,169 +1,290 @@
-# SmartShop AI — LLM-Powered Product Recommendation System
+# SmartShop AI — AI-Powered Product Recommendation System
 
-[![Python 3.10+](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/)
-[![Sentence Transformers](https://img.shields.io/badge/embeddings-all--MiniLM--L6--v2-orange.svg)](https://huggingface.co/sentence-transformers/all-MiniLM-L6-v2)
-[![Streamlit](https://img.shields.io/badge/frontend-Streamlit-red.svg)](https://streamlit.io/)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![API Cost](https://img.shields.io/badge/API%20Cost-$0%20(100%25%20Local)-brightgreen.svg)]()
+SmartShop AI is an end-to-end e-commerce product recommendation application that understands natural-language shopping requirements and recommends suitable products using semantic matching and hybrid ranking.
 
-A research-oriented, end-to-end e-commerce recommendation system built for high-impact technical demonstrations and placement interviews. It accepts natural-language user requirements, extracts latent intents and hardware constraints, embeds queries using local pretrained Sentence Transformers (`all-MiniLM-L6-v2`), and ranks candidate products via a 4-factor composite scoring engine with Explainable AI (XAI) rationales and offline evaluation metrics (Precision@K, MRR, NDCG@K).
+Instead of searching only by exact keywords, users can describe their requirements in plain English, such as:
 
----
+> "I need a laptop under ₹70,000 for Python, machine learning and college work."
 
-## 🌟 Core Features & Highlights
-
-1. **Natural Language Query Understanding:**
-   - Parses multi-intent user statements like:
-     > *"I need a laptop under 70000 for Python, machine learning and college work."*
-   - Detects price caps with numeric modifiers (`70k`, `1.2 lakh`, `<= 70000`, `between 50k and 75k`).
-   - Identifies product categories, brand aliases, and specific hardware specifications (RAM, Dedicated GPU, OLED display, OS).
-
-2. **Dense Vector Embeddings (Zero Paid API Key Required):**
-   - Utilizes Hugging Face's `sentence-transformers/all-MiniLM-L6-v2` generating 384-dimensional dense semantic vectors.
-   - Vector caching to disk (`data/product_embeddings.npy`) enables sub-millisecond similarity matrix operations.
-   - Operates 100% locally on CPU without external network dependencies or API limits.
-
-3. **Multi-Factor Hybrid Ranking Engine:**
-   Combines 4 distinct signals:
-   - **$S_{\text{semantic}}$**: Cosine similarity between query vector and rich product representations.
-   - **$S_{\text{budget}}$**: Asymmetric exponential penalty function penalizing over-budget items while rewarding optimal budget utilization.
-   - **$S_{\text{rating}}$**: Bayesian credibility score incorporating logarithmic review volume confidence.
-   - **$S_{\text{feature}}$**: Spec compliance matching across RAM, GPU, OS, and intended use-case tags.
-
-4. **Explainable AI (XAI) Dossiers:**
-   - Answers **WHY** each product was recommended.
-   - Decomposes match percentages across Semantic, Budget, Rating, and Spec dimensions.
-   - Details key matching strengths and transparent buyer trade-offs (e.g., thermal weight vs battery life).
-
-5. **Side-by-Side Product Comparison Matrix:**
-   - Compare 2 to 4 products across 16 technical attributes.
-   - Category winner badges: Best Value, Highest Rated, Lightest/Most Portable, Biggest Discount.
-   - Interactive 5-axis Plotly Radar Chart (Performance, Value, Portability, Rating, Display).
-
-6. **Quantitative Evaluation & Research Suite:**
-   - Evaluated on 8 canonical benchmark test scenarios with graded ground-truth relevance ($0, 1, 2, 3$).
-   - Computes **Precision@5**, **Recall@5**, **MRR (Mean Reciprocal Rank)**, and **NDCG@5**.
-   - Includes full **Ablation Study**:
-     - *Lexical Keyword Matching*: NDCG@5 = 0.628, MRR = 0.812
-     - *Pure Semantic Retrieval*: NDCG@5 = 0.594, MRR = 0.615
-     - *SmartShop AI (Hybrid)*: **NDCG@5 = 0.916 (+54% increase)**, **MRR = 1.000**
-
-7. **Sub-25ms Pipeline Latency:**
-   - Intent Extraction: ~1.5 ms
-   - Model Embedding: ~12 ms
-   - Vector Dot Product: 0.05 ms
-   - Total End-to-End: **~18 ms** on standard laptop CPU.
+The system extracts relevant requirements, generates semantic embeddings using a pretrained Sentence Transformer model, and ranks products based on multiple factors such as semantic relevance, budget compatibility, rating, and feature matching.
 
 ---
 
-## 📐 Mathematical Formulation
+## 🚀 Features
 
-For candidate product $i$ and user query $q$:
+### 1. Natural-Language Product Search
 
-$$S_{\text{total}}(i, q) = w_{\text{sem}} \cdot S_{\text{semantic}}(i, q) + w_{\text{budget}} \cdot S_{\text{budget}}(i, B) + w_{\text{rating}} \cdot S_{\text{rating}}(i) + w_{\text{feature}} \cdot S_{\text{feature}}(i, F)$$
+Users can enter requirements in normal language instead of using structured filters.
 
-$$\sum w = 1.0 \quad (w_{\text{sem}} = 0.45, \; w_{\text{budget}} = 0.25, \; w_{\text{rating}} = 0.15, \; w_{\text{feature}} = 0.15)$$
-
-### 1. Semantic Relevance ($S_{\text{semantic}}$)
-$$S_{\text{semantic}}(i, q) = \cos(\mathbf{e}_q, \mathbf{e}_i) = \mathbf{e}_q \cdot \mathbf{e}_i \quad \text{where } \|\mathbf{e}\|_2 = 1$$
-
-### 2. Budget Compatibility ($S_{\text{budget}}$)
-Given budget cap $B_{\text{max}}$ and product price $P_i$:
-- If $P_i \le B_{\text{max}}$:
-  $$S_{\text{budget}} = 1.0 - 0.20 \cdot \left(\frac{B_{\text{max}} - P_i}{B_{\text{max}}}\right)$$
-- If $P_i > B_{\text{max}}$:
-  $$S_{\text{budget}} = \exp\left(-3.50 \cdot \frac{P_i - B_{\text{max}}}{B_{\text{max}}}\right)$$
-
-### 3. Bayesian Rating Credibility ($S_{\text{rating}}$)
-$$S_{\text{rating}}(i) = \left(\frac{R_i - 1.0}{4.0}\right) \times \left[0.70 + 0.30 \cdot \min\left(1.0, \frac{\log_{10}(1 + N_{\text{reviews}})}{\log_{10}(500)}\right)\right]$$
-
----
-
-## 📂 Project Directory Structure
+Example:
 
 ```text
+I need a laptop under ₹70,000 for Python, machine learning and college work.
+
+The system identifies information such as:
+
+Product category
+Budget
+RAM requirements
+GPU requirements
+Operating system
+Intended use case
+2. Semantic Product Matching
+
+SmartShop AI uses the pretrained Sentence Transformer model:
+
+sentence-transformers/all-MiniLM-L6-v2
+
+to convert user queries and product descriptions into 384-dimensional embeddings.
+
+This allows the system to identify products with similar meanings even when the exact keywords are different.
+
+3. Hybrid Recommendation Ranking
+
+Recommendations are ranked using multiple signals:
+
+Semantic similarity
+Budget compatibility
+Product rating
+Feature/specification matching
+
+The overall recommendation score combines these factors to produce a balanced ranking.
+
+4. Explainable Recommendations
+
+For every recommended product, the application provides an explanation of why the product was selected.
+
+Users can see factors such as:
+
+Semantic match
+Budget match
+Rating
+Specification match
+Product strengths and trade-offs
+5. Product Comparison
+
+Users can compare multiple products side-by-side based on their technical specifications and other product attributes.
+
+6. Product Catalog Explorer
+
+The application includes a catalog explorer where users can browse the available products and inspect their details.
+
+7. Interactive Streamlit Application
+
+The complete recommendation system is available through an interactive Streamlit web interface.
+
+🧠 How It Works
+
+The recommendation pipeline follows these steps:
+
+User Query
+    ↓
+Intent & Requirement Extraction
+    ↓
+Query Embedding
+    ↓
+Semantic Similarity
+    ↓
+Hybrid Ranking
+    ↓
+Top Recommended Products
+    ↓
+Explanation & Comparison
+Step 1 — User Query
+
+The user describes what they are looking for in natural language.
+
+Example:
+
+I need a laptop under ₹70,000 for programming and machine learning.
+Step 2 — Requirement Extraction
+
+The system extracts relevant constraints from the query, such as:
+
+Budget
+Product category
+RAM
+GPU
+Operating system
+Use case
+Step 3 — Semantic Embedding
+
+The user query is converted into a numerical vector using:
+
+all-MiniLM-L6-v2
+
+Product descriptions are represented using the same embedding model.
+
+Step 4 — Similarity Calculation
+
+The system compares the query embedding with product embeddings using semantic similarity.
+
+Step 5 — Hybrid Ranking
+
+The semantic score is combined with budget, rating, and specification matching to calculate the final recommendation score.
+
+Step 6 — Explanation
+
+The application presents the recommended products along with the factors contributing to their ranking.
+
+🛠️ Technology Stack
+Technology	Purpose
+Python	Core development
+Pandas	Product data processing
+NumPy	Numerical computation
+Scikit-learn	Similarity and ML utilities
+Sentence Transformers	Semantic embeddings
+Streamlit	Web application
+Plotly	Interactive visualizations
+unittest	Automated testing
+📂 Project Structure
 SmartShop-AI/
-├── app.py                         # Main Streamlit Web Application
-├── requirements.txt               # Project dependencies
-├── README.md                      # Complete system documentation
+│
+├── app.py
+├── requirements.txt
+├── README.md
+│
 ├── config/
 │   ├── __init__.py
-│   └── config.py                  # Model hyperparameters, default weights & paths
+│   └── config.py
+│
 ├── data/
 │   ├── __init__.py
-│   ├── dataset_generator.py       # Reproducible product catalog builder (38+ tech items)
-│   ├── dataset_loader.py          # Schema validation, cleaning & rich text representations
-│   ├── products.csv               # E-commerce product catalog with specs & INR pricing
-│   ├── metadata.json              # Catalog statistics & price distribution
-│   └── product_embeddings.npy     # Precomputed 384-d normalized vector cache
+│   ├── dataset_generator.py
+│   ├── dataset_loader.py
+│   ├── metadata.json
+│   └── products.csv
+│
 ├── models/
 │   ├── __init__.py
-│   ├── embedding_engine.py        # SentenceTransformer loader, cache & cosine similarity
-│   └── intent_extractor.py        # Regex & NLP parser for budgets, specs, categories, use cases
+│   ├── embedding_engine.py
+│   └── intent_extractor.py
+│
 ├── recommendation/
 │   ├── __init__.py
-│   ├── ranker.py                  # 4-factor hybrid composite ranking engine
-│   └── explainer.py               # Explainable AI (XAI) rationale generator
+│   ├── ranker.py
+│   └── explainer.py
+│
 ├── comparison/
 │   ├── __init__.py
-│   └── comparator.py              # Spec comparison matrix, winner tags & radar metrics
+│   └── comparator.py
+│
 ├── evaluation/
 │   ├── __init__.py
-│   ├── benchmark_queries.py       # 8 canonical benchmark queries with ground-truth
-│   ├── evaluator.py               # Precision@K, Recall@K, MRR, NDCG@K & Ablation Study
-│   └── latency_profiler.py        # Microsecond runtime latency profiler
+│   ├── benchmark_queries.py
+│   ├── evaluator.py
+│   └── latency_profiler.py
+│
 ├── ui/
 │   ├── __init__.py
-│   ├── styles.py                  # Custom dark-glassmorphism CSS design system
-│   └── components.py              # Product cards, score chips & Plotly charts
+│   ├── components.py
+│   └── styles.py
+│
 └── tests/
     ├── __init__.py
-    ├── test_dataset.py            # Catalog schema & data integrity tests
-    ├── test_intent_extractor.py   # Intent & budget extraction tests
-    ├── test_embedding_engine.py   # Vector dimension & cosine bounds tests
-    ├── test_ranker.py             # Ranking order & budget suppression tests
-    ├── test_explainer.py          # Explanation generation tests
-    ├── test_evaluator.py          # IR metrics tests (Precision, MRR, NDCG)
-    └── test_end_to_end.py         # Full pipeline integration tests
-```
+    ├── test_dataset.py
+    ├── test_embedding_engine.py
+    ├── test_end_to_end.py
+    ├── test_evaluator.py
+    ├── test_explainer.py
+    ├── test_intent_extractor.py
+    └── test_ranker.py
+⚙️ Installation
+1. Clone the Repository
+git clone https://github.com/joyceangeleena21/SmartShop-AI.git
 
----
+Move into the project directory:
 
-## 🚀 Quickstart Guide
-
-### 1. Clone & Install Dependencies
-```bash
-git clone https://github.com/your-username/SmartShop-AI.git
 cd SmartShop-AI
+2. Install Dependencies
 pip install -r requirements.txt
-```
+▶️ Run the Application
 
-### 2. Run Automated Test Suite
-```bash
-python -m unittest discover tests
-```
-*Expected output: `Ran 20 tests in ~9s. OK`*
+Start the Streamlit application:
 
-### 3. Launch Streamlit Application
-```bash
 streamlit run app.py
-```
-*(Alternatively: `python -m streamlit run app.py`)*
 
-Open your browser at `http://localhost:8501`.
+Alternatively:
 
----
+python -m streamlit run app.py
 
-## 🎯 Placement Interview Defense Cheatsheet
+Then open the local URL displayed in the terminal, usually:
 
-| Question | Strong Technical Answer |
-| :--- | :--- |
-| **Q1: Why Sentence Transformers over BM25?** | BM25 requires exact keyword overlap. If a student searches for *"machine learning"*, BM25 misses products labeled *"RTX 3050, PyTorch, CUDA cores, deep neural networks"*. Dense 384-d embeddings capture semantic synonymy in continuous vector space. |
-| **Q2: Why not just call OpenAI's GPT API?** | (1) **Cost:** Zero ongoing API fees; (2) **Latency:** Local vector dot-products take **0.05 ms** vs 2000 ms for cloud LLMs; (3) **Reliability:** Fully deterministic, offline-capable, and private. |
-| **Q3: What was your biggest challenge?** | Handling budget constraints. Pure semantic search recommended ₹1.5 Lakh laptops because they have the best specs for ML. I designed an asymmetric exponential penalty function that mathematically depresses items exceeding the user's budget. |
-| **Q4: How did you evaluate the system?** | Created an 8-scenario benchmark suite with graded ground truth relevance. Our hybrid ranker achieved **MRR = 1.000**, **Recall@5 = 87.5%**, and **NDCG@5 = 0.916** (+54% higher than pure semantic retrieval). |
+http://localhost:8501
+🧪 Testing
 
----
+The project includes automated tests for important components such as:
 
-## 📜 License
-Released under the [MIT License](LICENSE). Built for academic research and educational demonstration.
+Dataset validation
+Intent extraction
+Embedding generation
+Recommendation ranking
+Explanation generation
+End-to-end recommendation flow
+
+Run the test suite using:
+
+python -m unittest discover tests
+📊 Example
+User Query
+I need a laptop under ₹70,000 for Python,
+machine learning and college work.
+Recommendation Output
+
+The system returns ranked products and displays:
+
+Product name
+Price
+Recommendation score
+Semantic relevance
+Budget compatibility
+Rating
+Specification match
+Explanation for the recommendation
+
+The user can then compare selected products using the Product Comparison Matrix.
+
+🎯 Project Objectives
+
+The main objectives of SmartShop AI are:
+
+Understand natural-language shopping requirements
+Improve product discovery beyond keyword-based search
+Use semantic similarity for product matching
+Combine multiple recommendation signals
+Provide understandable recommendation explanations
+Provide an interactive product comparison experience
+💡 Key Learning Outcomes
+
+This project demonstrates practical implementation of:
+
+Natural-language requirement processing
+Text embeddings
+Semantic similarity
+Recommendation systems
+Hybrid ranking
+Explainable AI
+Data preprocessing
+Streamlit application development
+Automated testing
+Modular Python project architecture
+🔮 Future Improvements
+
+Possible future enhancements include:
+
+Larger and more diverse product datasets
+Integration with real e-commerce product data
+Conversational recommendation using an LLM
+User preference and interaction history
+Personalized recommendations
+Product availability and price updates
+Advanced recommendation evaluation
+Cloud deployment
+👩‍💻 Author
+
+Joyce Angeleena Tera
+
+B.Tech — CSE (Artificial Intelligence & Data Science)
+
+GitHub:
+https://github.com/joyceangeleena21
