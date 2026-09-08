@@ -20,63 +20,69 @@ Example:
 
 ```text
 I need a laptop under ₹70,000 for Python, machine learning and college work.
+```
 
 The system identifies information such as:
 
-Product category
-Budget
-RAM requirements
-GPU requirements
-Operating system
-Intended use case
-2. Semantic Product Matching
+* Product category
+* Budget
+* RAM requirements
+* GPU requirements
+* Operating system
+* Intended use case
+
+### 2. Semantic Product Matching
 
 SmartShop AI uses the pretrained Sentence Transformer model:
 
-sentence-transformers/all-MiniLM-L6-v2
+`sentence-transformers/all-MiniLM-L6-v2`
 
 to convert user queries and product descriptions into 384-dimensional embeddings.
 
 This allows the system to identify products with similar meanings even when the exact keywords are different.
 
-3. Hybrid Recommendation Ranking
+### 3. Hybrid Recommendation Ranking
 
 Recommendations are ranked using multiple signals:
 
-Semantic similarity
-Budget compatibility
-Product rating
-Feature/specification matching
+* Semantic similarity
+* Budget compatibility
+* Product rating
+* Feature/specification matching
 
 The overall recommendation score combines these factors to produce a balanced ranking.
 
-4. Explainable Recommendations
+### 4. Explainable Recommendations
 
 For every recommended product, the application provides an explanation of why the product was selected.
 
 Users can see factors such as:
 
-Semantic match
-Budget match
-Rating
-Specification match
-Product strengths and trade-offs
-5. Product Comparison
+* Semantic match
+* Budget match
+* Rating
+* Specification match
+* Product strengths and trade-offs
+
+### 5. Product Comparison
 
 Users can compare multiple products side-by-side based on their technical specifications and other product attributes.
 
-6. Product Catalog Explorer
+### 6. Product Catalog Explorer
 
 The application includes a catalog explorer where users can browse the available products and inspect their details.
 
-7. Interactive Streamlit Application
+### 7. Interactive Streamlit Application
 
 The complete recommendation system is available through an interactive Streamlit web interface.
 
-🧠 How It Works
+---
+
+## 🧠 How It Works
 
 The recommendation pipeline follows these steps:
 
+```text
 User Query
     ↓
 Intent & Requirement Extraction
@@ -90,54 +96,63 @@ Hybrid Ranking
 Top Recommended Products
     ↓
 Explanation & Comparison
-Step 1 — User Query
+```
+
+### Step 1 — User Query
 
 The user describes what they are looking for in natural language.
 
 Example:
 
+```text
 I need a laptop under ₹70,000 for programming and machine learning.
-Step 2 — Requirement Extraction
+```
+
+### Step 2 — Requirement Extraction
 
 The system extracts relevant constraints from the query, such as:
 
-Budget
-Product category
-RAM
-GPU
-Operating system
-Use case
-Step 3 — Semantic Embedding
+* Budget
+* Product category
+* RAM
+* GPU
+* Operating system
+* Use case
 
-The user query is converted into a numerical vector using:
+### Step 3 — Semantic Embedding
 
-all-MiniLM-L6-v2
+The user query is converted into a numerical vector using `all-MiniLM-L6-v2`. Product descriptions are represented using the same embedding model.
 
-Product descriptions are represented using the same embedding model.
-
-Step 4 — Similarity Calculation
+### Step 4 — Similarity Calculation
 
 The system compares the query embedding with product embeddings using semantic similarity.
 
-Step 5 — Hybrid Ranking
+### Step 5 — Hybrid Ranking
 
 The semantic score is combined with budget, rating, and specification matching to calculate the final recommendation score.
 
-Step 6 — Explanation
+### Step 6 — Explanation
 
 The application presents the recommended products along with the factors contributing to their ranking.
 
-🛠️ Technology Stack
-Technology	Purpose
-Python	Core development
-Pandas	Product data processing
-NumPy	Numerical computation
-Scikit-learn	Similarity and ML utilities
-Sentence Transformers	Semantic embeddings
-Streamlit	Web application
-Plotly	Interactive visualizations
-unittest	Automated testing
-📂 Project Structure
+---
+
+## 🛠️ Technology Stack
+
+* **Python** — Core development
+* **Pandas** — Product data processing
+* **NumPy** — Numerical computation
+* **Scikit-learn** — Similarity and ML utilities
+* **Sentence Transformers** — Semantic embeddings
+* **Streamlit** — Web application
+* **Plotly** — Interactive visualizations
+* **unittest** — Automated testing
+
+---
+
+## 📂 Project Structure
+
+```text
 SmartShop-AI/
 │
 ├── app.py
@@ -189,102 +204,130 @@ SmartShop-AI/
     ├── test_explainer.py
     ├── test_intent_extractor.py
     └── test_ranker.py
-⚙️ Installation
-1. Clone the Repository
+```
+
+---
+
+## ⚙️ Installation
+
+### 1. Clone the Repository
+
+```bash
 git clone https://github.com/joyceangeleena21/SmartShop-AI.git
-
-Move into the project directory:
-
 cd SmartShop-AI
-2. Install Dependencies
+```
+
+### 2. Install Dependencies
+
+```bash
 pip install -r requirements.txt
-▶️ Run the Application
+```
+
+---
+
+## ▶️ Run the Application
 
 Start the Streamlit application:
 
+```bash
 streamlit run app.py
+```
 
 Alternatively:
 
+```bash
 python -m streamlit run app.py
+```
 
-Then open the local URL displayed in the terminal, usually:
+Then open the local URL displayed in the terminal, usually `http://localhost:8501`.
 
-http://localhost:8501
-🧪 Testing
+---
 
-The project includes automated tests for important components such as:
+## 🧪 Testing
 
-Dataset validation
-Intent extraction
-Embedding generation
-Recommendation ranking
-Explanation generation
-End-to-end recommendation flow
+The project includes automated tests for important components:
+
+* Dataset validation
+* Intent extraction
+* Embedding generation
+* Recommendation ranking
+* Explanation generation
+* End-to-end recommendation flow
 
 Run the test suite using:
 
+```bash
 python -m unittest discover tests
-📊 Example
-User Query
-I need a laptop under ₹70,000 for Python,
-machine learning and college work.
-Recommendation Output
+```
+
+---
+
+## 📊 Example
+
+### User Query
+
+```text
+I need a laptop under ₹70,000 for Python, machine learning and college work.
+```
+
+### Recommendation Output
 
 The system returns ranked products and displays:
 
-Product name
-Price
-Recommendation score
-Semantic relevance
-Budget compatibility
-Rating
-Specification match
-Explanation for the recommendation
+* Product name
+* Price
+* Recommendation score
+* Semantic relevance
+* Budget compatibility
+* Rating
+* Specification match
+* Explanation for the recommendation
 
 The user can then compare selected products using the Product Comparison Matrix.
 
-🎯 Project Objectives
+---
 
-The main objectives of SmartShop AI are:
+## 🎯 Project Objectives
 
-Understand natural-language shopping requirements
-Improve product discovery beyond keyword-based search
-Use semantic similarity for product matching
-Combine multiple recommendation signals
-Provide understandable recommendation explanations
-Provide an interactive product comparison experience
-💡 Key Learning Outcomes
+* Understand natural-language shopping requirements
+* Improve product discovery beyond keyword-based search
+* Use semantic similarity for product matching
+* Combine multiple recommendation signals
+* Provide understandable recommendation explanations
+* Provide an interactive product comparison experience
 
-This project demonstrates practical implementation of:
+---
 
-Natural-language requirement processing
-Text embeddings
-Semantic similarity
-Recommendation systems
-Hybrid ranking
-Explainable AI
-Data preprocessing
-Streamlit application development
-Automated testing
-Modular Python project architecture
-🔮 Future Improvements
+## 💡 Key Learning Outcomes
 
-Possible future enhancements include:
+* Natural-language requirement processing
+* Text embeddings
+* Semantic similarity
+* Recommendation systems
+* Hybrid ranking
+* Explainable AI
+* Data preprocessing
+* Streamlit application development
+* Automated testing
+* Modular Python project architecture
 
-Larger and more diverse product datasets
-Integration with real e-commerce product data
-Conversational recommendation using an LLM
-User preference and interaction history
-Personalized recommendations
-Product availability and price updates
-Advanced recommendation evaluation
-Cloud deployment
-👩‍💻 Author
+---
 
-Joyce Angeleena Tera
+## 🔮 Future Improvements
 
-B.Tech — CSE (Artificial Intelligence & Data Science)
+* Larger and more diverse product datasets
+* Integration with real e-commerce product data
+* Conversational recommendation using an LLM
+* User preference and interaction history
+* Personalized recommendations
+* Product availability and price updates
+* Advanced recommendation evaluation
+* Cloud deployment
 
-GitHub:
-https://github.com/joyceangeleena21
+---
+
+## 👩‍💻 Author
+
+**Joyce Angeleena Tera**  
+B.Tech — CSE (Artificial Intelligence & Data Science)  
+GitHub: [https://github.com/joyceangeleena21](https://github.com/joyceangeleena21)
